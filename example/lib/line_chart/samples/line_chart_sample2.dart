@@ -21,11 +21,11 @@ class _LineChartSample2State extends State<LineChartSample2> {
         AspectRatio(
           aspectRatio: 1.70,
           child: Container(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(
+            decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(
                   Radius.circular(18),
                 ),
-                color: const Color(0xff232d37)),
+                color: Color(0xff232d37)),
             child: Padding(
               padding: const EdgeInsets.only(right: 18.0, left: 12.0, top: 24, bottom: 12),
               child: LineChart(
@@ -60,14 +60,14 @@ class _LineChartSample2State extends State<LineChartSample2> {
         show: true,
         drawVerticalLine: true,
         getDrawingHorizontalLine: (value) {
-          return const FlLine(
-            color: Color(0xff37434d),
+          return FlLine(
+            color: const Color(0xff37434d),
             strokeWidth: 1,
           );
         },
         getDrawingVerticalLine: (value) {
-          return const FlLine(
-            color: Color(0xff37434d),
+          return FlLine(
+            color: const Color(0xff37434d),
             strokeWidth: 1,
           );
         },
@@ -78,7 +78,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
           showTitles: true,
           reservedSize: 22,
           textStyle:
-              TextStyle(color: const Color(0xff68737d), fontWeight: FontWeight.bold, fontSize: 16),
+              const TextStyle(color: Color(0xff68737d), fontWeight: FontWeight.bold, fontSize: 16),
           getTitles: (value) {
             switch (value.toInt()) {
               case 2:
@@ -94,8 +94,8 @@ class _LineChartSample2State extends State<LineChartSample2> {
         ),
         leftTitles: SideTitles(
           showTitles: true,
-          textStyle: TextStyle(
-            color: const Color(0xff67727d),
+          textStyle: const TextStyle(
+            color: Color(0xff67727d),
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -122,7 +122,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
       maxY: 6,
       lineBarsData: [
         LineChartBarData(
-          spots: const [
+          spots: [
             FlSpot(0, 3),
             FlSpot(2.6, 2),
             FlSpot(4.9, 5),
@@ -135,7 +135,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
           colors: gradientColors,
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
+          dotData: FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(
@@ -149,19 +149,19 @@ class _LineChartSample2State extends State<LineChartSample2> {
 
   LineChartData avgData() {
     return LineChartData(
-      lineTouchData: const LineTouchData(enabled: false),
+      lineTouchData: LineTouchData(enabled: false),
       gridData: FlGridData(
         show: true,
         drawHorizontalLine: true,
         getDrawingVerticalLine: (value) {
-          return const FlLine(
-            color: Color(0xff37434d),
+          return FlLine(
+            color: const Color(0xff37434d),
             strokeWidth: 1,
           );
         },
         getDrawingHorizontalLine: (value) {
-          return const FlLine(
-            color: Color(0xff37434d),
+          return FlLine(
+            color: const Color(0xff37434d),
             strokeWidth: 1,
           );
         },
@@ -172,7 +172,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
           showTitles: true,
           reservedSize: 22,
           textStyle:
-              TextStyle(color: const Color(0xff68737d), fontWeight: FontWeight.bold, fontSize: 16),
+              const TextStyle(color: Color(0xff68737d), fontWeight: FontWeight.bold, fontSize: 16),
           getTitles: (value) {
             switch (value.toInt()) {
               case 2:
@@ -188,8 +188,8 @@ class _LineChartSample2State extends State<LineChartSample2> {
         ),
         leftTitles: SideTitles(
           showTitles: true,
-          textStyle: TextStyle(
-            color: const Color(0xff67727d),
+          textStyle: const TextStyle(
+            color: Color(0xff67727d),
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -216,7 +216,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
       maxY: 6,
       lineBarsData: [
         LineChartBarData(
-          spots: const [
+          spots: [
             FlSpot(0, 3.44),
             FlSpot(2.6, 3.44),
             FlSpot(4.9, 3.44),
@@ -232,7 +232,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
           ],
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
+          dotData: FlDotData(
             show: false,
           ),
           belowBarData: BarAreaData(show: true, colors: [

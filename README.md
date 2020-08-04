@@ -39,16 +39,16 @@ Thank you all!
 
 ##### Add it to your package's pubspec.yaml file
 
-```kotlin
+```yml
 dependencies:
-  fl_chart: ^0.8.0
+  fl_chart: ^0.11.0
 ```
 
 
 ### 2 - Install it
 
 ##### Install packages from the command line
-```kotlin
+```sh
 flutter packages get
 ```
 
@@ -73,7 +73,7 @@ flutter packages get
 
 `1L7ghKdcmgydmUJAnmYmMaiVjT1LoP4a45`
 
-# Contributing
-1. Make sure to format files using Dart formatter with line length of 100. VSC users will have these settings auto applied via the included VSC workspace config.
+### Contributing
 
-2. Submit a PR with your changes.
+Check out [CONTRIBUTING.md](CONTRIBUTING.md), which contains a guide for those
+who wish to contribute to FL Chart. Thanks in advance!

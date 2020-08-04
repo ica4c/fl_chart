@@ -3,7 +3,7 @@
 <img src="https://github.com/imaNNeoFighT/fl_chart/raw/master/repo_files/images/pie_chart/pie_chart.jpg" width="300" >
 
 ### How to use
-```
+```dart
 PieChart(
   PieChartData(
     // read about it in the below section
@@ -11,13 +11,15 @@ PieChart(
 );
 ```
 
+**If you have a padding widget around the PieChart, make sure to set `PieChartData.centerSpaceRadius` to `double.infinity`**
+
 ### PieChartData
 |PropName		|Description	|default value|
 |:---------------|:---------------|:-------|
 |sections| list of [PieChartSectionData ](#PieChartSectionData) that is shown on the pie chart|[]|
-|centerSpaceRadius| free space in the middle of the PieChart| 80|
+|centerSpaceRadius| free space in the middle of the PieChart, set `double.infinity` if you want it to be calculated according to the view size| double.nan|
 |centerSpaceColor| colors the free space in the middle of the PieChart|Colors.transparent|
-|sectionsSpace| space between the sections (margin of them)|2|
+|sectionsSpace| space between the sections (margin of them), **Ignored on web**|2|
 |startDegreeOffset| degree offset of the sections around the pie chart, should be between 0 and 360|0|
 |pieTouchData| [PieTouchData](#PieTouchData) holds the touch interactivity details| PieTouchData()|
 |borderData| shows a border around the chart, check the [FlBorderData](base_chart.md#FlBorderData)|FlBorderData()|
@@ -39,7 +41,6 @@ PieChart(
 |PropName|Description|default value|
 |:-------|:----------|:------------|
 |enabled|determines to enable or disable touch behaviors|true|
-|enableNormalTouch| set it false if you just want to handle long press|true|
 |touchCallback| listen to this callback to retrieve touch events, it gives you a [PieTouchResponse](#PieTouchResponse)| null|
 
 ### PieTouchResponse

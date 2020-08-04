@@ -6,19 +6,25 @@ import 'package:flutter/material.dart';
 
 import 'pie_chart_data.dart';
 
+/// Renders a pie chart as a widget, using provided [PieChartData].
 class PieChart extends ImplicitlyAnimatedWidget {
+  /// Determines how the [PieChart] should be look like.
   final PieChartData data;
 
+  /// [data] determines how the [PieChart] should be look like,
+  /// when you make any change in the [PieChartData], it updates
+  /// new values with animation, and duration is [swapAnimationDuration].
   const PieChart(
     this.data, {
     Duration swapAnimationDuration = const Duration(milliseconds: 150),
   }) : super(duration: swapAnimationDuration);
 
+  /// Creates a [_PieChartState]
   @override
-  PieChartState createState() => PieChartState();
+  _PieChartState createState() => _PieChartState();
 }
 
-class PieChartState extends AnimatedWidgetBaseState<PieChart> {
+class _PieChartState extends AnimatedWidgetBaseState<PieChart> {
   /// we handle under the hood animations (implicit animations) via this tween,
   /// it lerps between the old [PieChartData] to the new one.
   PieChartDataTween _pieChartDataTween;
@@ -31,7 +37,7 @@ class PieChartState extends AnimatedWidgetBaseState<PieChart> {
 
   @override
   Widget build(BuildContext context) {
-    final PieChartData showingData = _getDate();
+    final PieChartData showingData = _getData();
     final PieTouchData touchData = showingData.pieTouchData;
 
     return GestureDetector(
@@ -77,7 +83,7 @@ class PieChartState extends AnimatedWidgetBaseState<PieChart> {
         }
 
         final PieTouchResponse response = _touchHandler?.handleTouch(
-            FlPanEnd(Offset.zero, Velocity(pixelsPerSecond: Offset.zero)), chartSize);
+            FlPanEnd(Offset.zero, const Velocity(pixelsPerSecond: Offset.zero)), chartSize);
         if (_canHandleTouch(response, touchData)) {
           touchData.touchCallback(response);
         }
@@ -120,7 +126,7 @@ class PieChartState extends AnimatedWidgetBaseState<PieChart> {
       },
       child: CustomPaint(
         key: _chartKey,
-        size: getDefaultSize(context),
+        size: getDefaultSize(MediaQuery.of(context).size),
         painter: PieChartPainter(
           _pieChartDataTween.evaluate(animation),
           showingData,
@@ -140,20 +146,16 @@ class PieChartState extends AnimatedWidgetBaseState<PieChart> {
   }
 
   Size _getChartSize() {
-    if (_chartKey.currentContext != null) {
-      final RenderBox containerRenderBox = _chartKey.currentContext.findRenderObject();
-      if (containerRenderBox.hasSize) {
-        return containerRenderBox.size;
-      }
-      return null;
-    } else {
-      return null;
+    final RenderBox containerRenderBox = _chartKey.currentContext?.findRenderObject();
+    if (containerRenderBox != null && containerRenderBox.hasSize) {
+      return containerRenderBox.size;
     }
+    return null;
   }
 
   /// if builtIn touches are enabled, we should recreate our [pieChartData]
   /// to handle built in touches
-  PieChartData _getDate() {
+  PieChartData _getData() {
     return widget.data;
   }
 

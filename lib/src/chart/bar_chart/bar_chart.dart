@@ -4,19 +4,25 @@ import 'package:fl_chart/src/chart/base/base_chart/base_chart_painter.dart';
 import 'package:fl_chart/src/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 
+/// Renders a bar chart as a widget, using provided [BarChartData].
 class BarChart extends ImplicitlyAnimatedWidget {
+  /// Determines how the [BarChart] should be look like.
   final BarChartData data;
 
+  /// [data] determines how the [BarChart] should be look like,
+  /// when you make any change in the [BarChartData], it updates
+  /// new values with animation, and duration is [swapAnimationDuration].
   const BarChart(
     this.data, {
     Duration swapAnimationDuration = const Duration(milliseconds: 150),
   }) : super(duration: swapAnimationDuration);
 
+  /// Creates a [_BarChartState]
   @override
-  BarChartState createState() => BarChartState();
+  _BarChartState createState() => _BarChartState();
 }
 
-class BarChartState extends AnimatedWidgetBaseState<BarChart> {
+class _BarChartState extends AnimatedWidgetBaseState<BarChart> {
   /// we handle under the hood animations (implicit animations) via this tween,
   /// it lerps between the old [BarChartData] to the new one.
   BarChartDataTween _barChartDataTween;
@@ -29,7 +35,7 @@ class BarChartState extends AnimatedWidgetBaseState<BarChart> {
 
   @override
   Widget build(BuildContext context) {
-    final BarChartData showingData = _getDate();
+    final BarChartData showingData = _getData();
     final BarTouchData touchData = showingData.barTouchData;
 
     return GestureDetector(
@@ -76,7 +82,7 @@ class BarChartState extends AnimatedWidgetBaseState<BarChart> {
         }
 
         final BarTouchResponse response = _touchHandler?.handleTouch(
-            FlPanEnd(Offset.zero, Velocity(pixelsPerSecond: Offset.zero)), chartSize);
+            FlPanEnd(Offset.zero, const Velocity(pixelsPerSecond: Offset.zero)), chartSize);
         if (_canHandleTouch(response, touchData)) {
           touchData.touchCallback(response);
         }
@@ -119,7 +125,7 @@ class BarChartState extends AnimatedWidgetBaseState<BarChart> {
       },
       child: CustomPaint(
         key: _chartKey,
-        size: getDefaultSize(context),
+        size: getDefaultSize(MediaQuery.of(context).size),
         painter: BarChartPainter(
           _withTouchedIndicators(_barChartDataTween.evaluate(animation)),
           _withTouchedIndicators(showingData),
@@ -164,18 +170,14 @@ class BarChartState extends AnimatedWidgetBaseState<BarChart> {
   }
 
   Size _getChartSize() {
-    if (_chartKey.currentContext != null) {
-      final RenderBox containerRenderBox = _chartKey.currentContext.findRenderObject();
-      if (containerRenderBox.hasSize) {
-        return containerRenderBox.size;
-      }
-      return null;
-    } else {
-      return null;
+    final RenderBox containerRenderBox = _chartKey.currentContext?.findRenderObject();
+    if (containerRenderBox != null && containerRenderBox.hasSize) {
+      return containerRenderBox.size;
     }
+    return null;
   }
 
-  BarChartData _getDate() {
+  BarChartData _getData() {
     final barTouchData = widget.data.barTouchData;
     if (barTouchData.enabled && barTouchData.handleBuiltInTouches) {
       return widget.data.copyWith(

@@ -20,7 +20,7 @@ class BarChartSample1 extends StatefulWidget {
 
 class BarChartSample1State extends State<BarChartSample1> {
   final Color barBackgroundColor = const Color(0xff72d8bf);
-  final Duration animDuration = Duration(milliseconds: 250);
+  final Duration animDuration = const Duration(milliseconds: 250);
 
   int touchedIndex;
 
@@ -218,7 +218,7 @@ class BarChartSample1State extends State<BarChartSample1> {
             }
           },
         ),
-        leftTitles: const SideTitles(
+        leftTitles: SideTitles(
           showTitles: false,
         ),
       ),
@@ -231,7 +231,7 @@ class BarChartSample1State extends State<BarChartSample1> {
 
   BarChartData randomData() {
     return BarChartData(
-      barTouchData: const BarTouchData(
+      barTouchData: BarTouchData(
         enabled: false,
       ),
       titlesData: FlTitlesData(
@@ -261,7 +261,7 @@ class BarChartSample1State extends State<BarChartSample1> {
             }
           },
         ),
-        leftTitles: const SideTitles(
+        leftTitles: SideTitles(
           showTitles: false,
         ),
       ),
@@ -300,7 +300,7 @@ class BarChartSample1State extends State<BarChartSample1> {
 
   Future<dynamic> refreshState() async {
     setState(() {});
-    await Future<dynamic>.delayed(animDuration + Duration(milliseconds: 50));
+    await Future<dynamic>.delayed(animDuration + const Duration(milliseconds: 50));
     if (isPlaying) {
       refreshState();
     }

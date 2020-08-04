@@ -6,33 +6,41 @@ import 'package:fl_chart/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'pie_chart.dart';
 import 'pie_chart_data.dart';
 
-/// this class will paint the [PieChart] based on the [PieChartData]
+/// Paints [PieChartData] in the canvas, it can be used in a [CustomPainter]
 class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<PieTouchResponse> {
-  /// [sectionPaint] responsible to paint each section
-  /// [sectionsSpaceClearPaint] responsible to clear the space between the sections
-  /// [centerSpacePaint] responsible to draw the center space of our chart.
-  Paint sectionPaint, sectionsSpaceClearPaint, centerSpacePaint;
+  Paint _sectionPaint, _sectionsSpaceClearPaint, _centerSpacePaint;
 
+  /// Paints [data] into canvas, it is the animating [PieChartData],
+  /// [targetData] is the animation's target and remains the same
+  /// during animation, then we should use it  when we need to show
+  /// tooltips or something like that, because [data] is changing constantly.
+  ///
+  /// [touchHandler] passes a [TouchHandler] to the parent,
+  /// parent will use it for touch handling flow.
+  ///
+  /// [textScale] used for scaling texts inside the chart,
+  /// parent can use [MediaQuery.textScaleFactor] to respect
+  /// the system's font size.
   PieChartPainter(PieChartData data, PieChartData targetData, Function(TouchHandler) touchHandler,
       {double textScale})
       : super(data, targetData, textScale: textScale) {
     touchHandler(this);
 
-    sectionPaint = Paint()..style = PaintingStyle.stroke;
+    _sectionPaint = Paint()..style = PaintingStyle.stroke;
 
-    sectionsSpaceClearPaint = Paint()
+    _sectionsSpaceClearPaint = Paint()
       ..style = PaintingStyle.fill
       ..color = const Color(0x000000000)
       ..blendMode = BlendMode.srcOut;
 
-    centerSpacePaint = Paint()
+    _centerSpacePaint = Paint()
       ..style = PaintingStyle.fill
       ..color = data.centerSpaceColor;
   }
 
+  /// Paints [PieChartData] into the provided canvas.
   @override
   void paint(Canvas canvas, Size size) {
     super.paint(canvas, size);
@@ -42,9 +50,9 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
 
     final List<double> sectionsAngle = _calculateSectionsAngle(data.sections, data.sumValue);
 
-    drawCenterSpace(canvas, size);
-    drawSections(canvas, size, sectionsAngle);
-    drawTexts(canvas, size);
+    _drawCenterSpace(canvas, size);
+    _drawSections(canvas, size, sectionsAngle);
+    _drawTexts(canvas, size);
   }
 
   List<double> _calculateSectionsAngle(List<PieChartSectionData> sections, double sumValue) {
@@ -53,15 +61,20 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
     }).toList();
   }
 
-  void drawCenterSpace(Canvas canvas, Size viewSize) {
+  void _drawCenterSpace(Canvas canvas, Size viewSize) {
     final double centerX = viewSize.width / 2;
     final double centerY = viewSize.height / 2;
 
-    canvas.drawCircle(Offset(centerX, centerY), data.centerSpaceRadius, centerSpacePaint);
+    canvas.drawCircle(Offset(centerX, centerY), data.centerSpaceRadius, _centerSpacePaint);
   }
 
-  void drawSections(Canvas canvas, Size viewSize, List<double> sectionsAngle) {
-    canvas.saveLayer(Rect.fromLTWH(0, 0, viewSize.width, viewSize.height), Paint());
+  void _drawSections(Canvas canvas, Size viewSize, List<double> sectionsAngle) {
+    final shouldDrawSeparators = data.sectionsSpace != 0 && data.sections.length != 1;
+
+    if (shouldDrawSeparators) {
+      canvas.saveLayer(Rect.fromLTWH(0, 0, viewSize.width, viewSize.height), Paint());
+    }
+
     final Offset center = Offset(viewSize.width / 2, viewSize.height / 2);
 
     double tempAngle = data.startDegreeOffset;
@@ -72,11 +85,11 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
 
       final rect = Rect.fromCircle(
         center: center,
-        radius: data.centerSpaceRadius + (section.radius / 2),
+        radius: _calculateCenterRadius(viewSize, data.centerSpaceRadius) + (section.radius / 2),
       );
 
-      sectionPaint.color = section.color;
-      sectionPaint.strokeWidth = section.radius;
+      _sectionPaint.color = section.color;
+      _sectionPaint.strokeWidth = section.radius;
 
       final double startAngle = tempAngle;
       final double sweepAngle = sectionDegree;
@@ -85,18 +98,20 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
         radians(startAngle),
         radians(sweepAngle),
         false,
-        sectionPaint,
+        _sectionPaint,
       );
 
       tempAngle += sweepAngle;
     }
 
-    removeSectionsSpace(canvas, viewSize);
+    if (shouldDrawSeparators) {
+      _removeSectionsSpace(canvas, viewSize);
+    }
   }
 
   /// firstly the sections draw close to eachOther without any space,
   /// then here we clear a line with given [PieChartData.width]
-  void removeSectionsSpace(Canvas canvas, Size viewSize) {
+  void _removeSectionsSpace(Canvas canvas, Size viewSize) {
     const double extraLineSize = 1;
     final Offset center = Offset(viewSize.width / 2, viewSize.height / 2);
 
@@ -112,26 +127,32 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
 
       final Offset sectionsStartFrom = center +
           Offset(
-            math.cos(radians(startAngle)) * (data.centerSpaceRadius - extraLineSize),
-            math.sin(radians(startAngle)) * (data.centerSpaceRadius - extraLineSize),
+            math.cos(radians(startAngle)) *
+                (_calculateCenterRadius(viewSize, data.centerSpaceRadius) - extraLineSize),
+            math.sin(radians(startAngle)) *
+                (_calculateCenterRadius(viewSize, data.centerSpaceRadius) - extraLineSize),
           );
 
       final Offset sectionsStartTo = center +
           Offset(
             math.cos(radians(startAngle)) *
-                (data.centerSpaceRadius + maxSectionRadius + extraLineSize),
+                (_calculateCenterRadius(viewSize, data.centerSpaceRadius) +
+                    maxSectionRadius +
+                    extraLineSize),
             math.sin(radians(startAngle)) *
-                (data.centerSpaceRadius + maxSectionRadius + extraLineSize),
+                (_calculateCenterRadius(viewSize, data.centerSpaceRadius) +
+                    maxSectionRadius +
+                    extraLineSize),
           );
 
-      sectionsSpaceClearPaint.strokeWidth = data.sectionsSpace;
-      canvas.drawLine(sectionsStartFrom, sectionsStartTo, sectionsSpaceClearPaint);
+      _sectionsSpaceClearPaint.strokeWidth = data.sectionsSpace;
+      canvas.drawLine(sectionsStartFrom, sectionsStartTo, _sectionsSpaceClearPaint);
       tempAngle += sweepAngle;
     });
     canvas.restore();
   }
 
-  void drawTexts(Canvas canvas, Size viewSize) {
+  void _drawTexts(Canvas canvas, Size viewSize) {
     final Offset center = Offset(viewSize.width / 2, viewSize.height / 2);
 
     double tempAngle = data.startDegreeOffset;
@@ -143,9 +164,11 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
       final Offset sectionCenterOffset = center +
           Offset(
             math.cos(radians(sectionCenterAngle)) *
-                (data.centerSpaceRadius + (section.radius * section.titlePositionPercentageOffset)),
+                (_calculateCenterRadius(viewSize, data.centerSpaceRadius) +
+                    (section.radius * section.titlePositionPercentageOffset)),
             math.sin(radians(sectionCenterAngle)) *
-                (data.centerSpaceRadius + (section.radius * section.titlePositionPercentageOffset)),
+                (_calculateCenterRadius(viewSize, data.centerSpaceRadius) +
+                    (section.radius * section.titlePositionPercentageOffset)),
           );
 
       if (section.showTitle) {
@@ -163,6 +186,29 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
     }
   }
 
+  double _calculateCenterRadius(Size viewSize, double givenCenterRadius) {
+    if (!givenCenterRadius.isInfinite) {
+      return givenCenterRadius;
+    }
+
+    double maxRadius = 0;
+    for (int i = 0; i < data.sections.length; i++) {
+      final section = data.sections[i];
+      if (section.radius > maxRadius) {
+        maxRadius = section.radius;
+      }
+    }
+
+    final minWidthHeight = math.min(viewSize.width, viewSize.height);
+    final centerRadius = (minWidthHeight - (maxRadius * 2)) / 2;
+    return centerRadius;
+  }
+
+  /// Makes a [PieTouchResponse] based on the provided [FlTouchInput]
+  ///
+  /// Processes [FlTouchInput.getOffset] and checks
+  /// the elements of the chart that are near the offset,
+  /// then makes a [PieTouchResponse] from the elements that has been touched.
   @override
   PieTouchResponse handleTouch(FlTouchInput touchInput, Size size) {
     final List<double> sectionsAngle = _calculateSectionsAngle(data.sections, data.sumValue);
@@ -191,22 +237,27 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
     int foundSectionDataPosition;
 
     /// Find the nearest section base on the touch spot
-    double tempAngle = data.startDegreeOffset;
+    final relativeTouchAngle = (touchAngle - data.startDegreeOffset) % 360;
+    double tempAngle = 0.0;
     for (int i = 0; i < data.sections.length; i++) {
       final section = data.sections[i];
       double sectionAngle = sectionsAngle[i];
 
       tempAngle %= 360;
-      sectionAngle %= 360;
+      if (data.sections.length == 1) {
+        sectionAngle = 360;
+      } else {
+        sectionAngle %= 360;
+      }
 
       /// degree criteria
       final space = data.sectionsSpace / 2;
       final fromDegree = tempAngle + space;
       final toDegree = sectionAngle + tempAngle - space;
-      final isInDegree = touchAngle >= fromDegree && touchAngle <= toDegree;
+      final isInDegree = relativeTouchAngle >= fromDegree && relativeTouchAngle <= toDegree;
 
       /// radius criteria
-      final centerRadius = data.centerSpaceRadius;
+      final centerRadius = _calculateCenterRadius(viewSize, data.centerSpaceRadius);
       final sectionRadius = centerRadius + section.radius;
       final isInRadius = touchR > centerRadius && touchR <= sectionRadius;
 
@@ -223,6 +274,10 @@ class PieChartPainter extends BaseChartPainter<PieChartData> with TouchHandler<P
         foundSectionData, foundSectionDataPosition, touchAngle, touchR, touchInput);
   }
 
+  /// Determines should it redraw the chart or not.
+  ///
+  /// If there is a change in the [PieChartData],
+  /// [PieChartPainter] should repaint itself.
   @override
   bool shouldRepaint(PieChartPainter oldDelegate) => oldDelegate.data != data;
 }

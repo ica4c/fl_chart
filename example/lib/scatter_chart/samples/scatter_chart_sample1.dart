@@ -41,17 +41,17 @@ class _ScatterChartSample1State extends State {
               borderData: FlBorderData(
                 show: false,
               ),
-              gridData: const FlGridData(
+              gridData: FlGridData(
                 show: false,
               ),
-              titlesData: const FlTitlesData(
+              titlesData: FlTitlesData(
                 show: false,
               ),
-              scatterTouchData: const ScatterTouchData(
+              scatterTouchData: ScatterTouchData(
                 enabled: false,
               ),
             ),
-            swapAnimationDuration: Duration(milliseconds: 600),
+            swapAnimationDuration: const Duration(milliseconds: 600),
           ),
         ),
       ),
